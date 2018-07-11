@@ -50,13 +50,10 @@ static navigationOptions = {
             const itemId = params ? params.itemId : null;
             console.log('cwmmmmmm--->'+JSON.stringify(this.props.card1,null,4));
             this.setState({topCard: this.props.card1[0], cards: this.props.card1 });
-            // axios.get('https://api.jsonbin.io/b/5aca97bd4ba8d82b4ccc38cb/3')
+            // axios.get('https://kuwxlkua52.execute-api.us-east-1.amazonaws.com/dev/psmjson/single')
             // .then(response => 
             // {
-            //     this.setState({ cards: response.data, topCard: response.data[0] })
-            //     response.data.map((d)=> {
-            //         //console.log(`The artist is ${d.artist} and url is ${d.url}`)
-            //     })
+            //     console.log('KOOOOO--->'+response);
             // }
             // );
         }

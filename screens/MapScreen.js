@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { View, Dimensions, ScrollView, TouchableOpacity } from 'react-native';
 import Header from './HeaderComponent';
 import { connect } from 'react-redux'
+import axios from 'axios';
 import { Image, Title, Subtitle, Heading, Button, Text, Tile,ImageBackground, Icon } from '@shoutem/ui';
 import { getCards, getFavCards } from '../actions/cardcreatoraction';
 
@@ -13,6 +14,15 @@ class MapScreen extends Component {
 
     static navigationOptions = {
         drawerLabel: 'Menu'
+    }
+
+    componentWillMount(){
+        // axios.get('https://kuwxlkua52.execute-api.us-east-1.amazonaws.com/dev/psmjson/single')
+        //     .then(response => 
+        //     {
+        //         console.log('KOOOOO--->'+JSON.stringify(response.data,null,4));
+        //     }
+        //     );
     }
 
 
@@ -56,12 +66,15 @@ class MapScreen extends Component {
                         <Icon name="cart" /><Text>CLAIM COUPON</Text></Button>
                         */}
                         <Button styleName="clear" style={{ backgroundColor: '#00000000'}} 
-                        onPress={()=> {this.props.getCards('https://api.jsonbin.io/b/5aca97bd4ba8d82b4ccc38cb/3',() => {
+                        onPress={()=> {this.props.getCards('https://kuwxlkua52.execute-api.us-east-1.amazonaws.com/dev/psmjson/single?category=Love',() => {
                         this.props.navigation.navigate('Poem');
                         })}}>
                         <Icon name="cart" /><Text>CLAIM COUPON</Text>
                         </Button>
                 </Tile>
+
+                    
+
                 </ImageBackground>
                 <ImageBackground
                 style={{ height: (SCREEN_WIDTH/2)-10, width: (SCREEN_WIDTH/2)-1.5, marginTop: 1, marginBottom: .5, marginLeft: 1, marginRight: .5,backgroundColor:'#000000'}}>
