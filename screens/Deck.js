@@ -8,21 +8,27 @@ import {
   LayoutAnimation,
   UIManager,
   Image,
-  Easing
+  Easing,
+  Platform
 } from 'react-native';
+import Spinner from "react-native-loading-spinner-overlay";
 
-import { addFavCard, loadMoreFlag } from '../actions/cardcreatoraction';
+
+import { addFavCard, loadMoreFlag, getFavCards } from '../actions/cardcreatoraction';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SWIPE_THRESHOLD = 0.25 * SCREEN_WIDTH;
 const SWIPE_OUT_DURATION = 250;
 
+let dir = '';
+
 class Deck extends Component {
   static defaultProps = {
     onSwipeRight: () => {},
     onSwipeLeft: () => {}
   }
+
 
   constructor(props) {
   
@@ -39,8 +45,10 @@ class Deck extends Component {
       },
       onPanResponderRelease: (event, gesture) => {
         if (gesture.dx > SWIPE_THRESHOLD) {
+          dir = 'right';
           this.forceSwipe('right');
         } else if (gesture.dx < -SWIPE_THRESHOLD) {
+          dir = 'left';
           this.forceSwipe('left');
         } else {
           this.resetPosition();
@@ -48,7 +56,7 @@ class Deck extends Component {
       }
     });
 
-    this.state = { panResponder, position, index: 0 };
+    this.state = { panResponder, position, index: 0, visible: false };
   }
 
   componentWillReceiveProps(nextProps) {
@@ -62,10 +70,40 @@ class Deck extends Component {
             this.props.loadMoreFlag(false);
     }
 
+    //to avoid empty screen when fav cards is selected subsequentlt from categories 
+    if(nextProps.favCardsrehitflag && ((nextProps.data.length) == this.state.index )){
+            this.setState({ index: 0 });
+
+    }
+
   }
 
   componentDidMount(){
     console.log('CDMM DECK--->');
+  }
+
+  renderSpinner() {
+    return (
+      <View style={{ zIndex: 500 }}>
+        <Spinner
+          visible={this.state.visible}
+          color="#ffff00"
+          textContent={"Loading..."}
+          textStyle={{ color: "#FFFF00" }}
+          overlayColor="#ffffff"
+        >
+          <Image
+            style={{
+              height: 60,
+              width: 60,
+              marginTop: SCREEN_HEIGHT / 2 - 30,
+              marginLeft: SCREEN_WIDTH / 2 - 30
+            }}
+            source={require("../icons/spinner.gif")}
+          />
+        </Spinner>
+      </View>
+    );
   }
 
 //  componentDidMount () {
@@ -83,12 +121,13 @@ animate () {
   ).start()
 }
 
-  componentWillUpdate() {
-    UIManager.setLayoutAnimationEnabledExperimental && UIManager.setLayoutAnimationEnabledExperimental(true);
-    LayoutAnimation.spring();
-  }
+  // componentWillUpdate() {
+  //   UIManager.setLayoutAnimationEnabledExperimental && UIManager.setLayoutAnimationEnabledExperimental(true);
+  //   LayoutAnimation.spring();
+  // }
 
   forceSwipe(direction) {
+    console.log("NHNHNH111");
     const x = direction === 'right' ? SCREEN_WIDTH : -SCREEN_WIDTH;
     Animated.timing(this.state.position, {
       toValue: { x, y: 0 },
@@ -97,25 +136,59 @@ animate () {
   }
 
   onSwipeComplete(direction) {
+     console.log("NHNHNH222");
     this.animate();
     const { onSwipeLeft, onSwipeRight, data } = this.props;
     const item = data[this.state.index];
     console.log('FLOWCHECK---> 1'+this.state.index);
+         console.log("NHNHNH333---->",this.props.data.length +"         "+this.state.index);
     if(this.state.index >= this.props.data.length-1)
     {
+                     console.log("NHNHNH444");
                 this.props.setTopCard(null)
     }
     else 
-    {
+    {       
+                 console.log("NHNHNH555");
             console.log('FLOWCHECK---> 1'+JSON.stringify(this.props.data[this.state.index]),null,4);
             this.props.setTopCard(this.props.data[this.state.index + 1])
 
     }
     //console.log('FLOWCHECK---> 2'+direction);
     direction === 'right' ? onSwipeRight(item) : onSwipeLeft(item);
+         console.log("NHNHNH6666");
     this.state.position.setValue({ x: 0, y: 0 });
-    this.setState({ index: this.state.index + 1 });
+         console.log("NHNHNH777" + this.state.index +'nnnnnnnnnn'+ (this.props.data.length-1));
+    if(Platform.OS === "android"){
+        if(this.state.index < this.props.data.length-1){
+                     console.log("NHNHNH777.5555");
+            this.setState({ index: this.state.index + 1 });
+        }
+        else {
+              // this.setState({ visible: true });
+              // setTimeout(() => {
+              //     this.setState({ visible: false });
+              //   }, 3000);
+              // this.props.dummyAsync(this.props.fc,
+              //     () => {
+              //       this.props.navigation.navigate("Map");
+              //     });
+              //   setTimeout(() => {
+              //     this.setState({ visible: false });
+              //   }, 3000);
+              //   setTimeout(() => {
+              //     this.props.navigation.navigate("Map");
+              //   }, 1000);
+              this.setState({ index: this.state.index + 1 });
+            //this.props.navigation.navigate("auth");
 
+              //this.props.loadMoreFlag(true);
+        }
+    }else
+    {
+    this.setState({ index: this.state.index + 1 });
+    }
+         console.log("NHNHNH888");
     //console.log('llllll--->'+this.state.index+'nnnnnnnn'+this.props.data.length)
     //console.log('FLOWCHECK---> 3');
     //console.log('JJJJJJKKKKK---->'+JSON.stringify(this.props.favcards,null,4))
@@ -142,10 +215,16 @@ animate () {
     };
   }
 
+  //C13180938359U6E
+
   renderCards() {
     console.log("RNMC 1"+this.state.index);
     console.log("RNMC 2"+this.props.data.length);
+        console.log("RNMC 3"+this.props.data.length);
+    
     if (this.state.index >= this.props.data.length) {
+               console.log("NHNHNH999");
+               dir = 'left';
       return this.props.renderNoMoreCards();
     }
 
@@ -164,11 +243,6 @@ animate () {
           </Animated.View>
         );
       }
-       {/*<Animated.View
-          key={item.id}
-          //FOR CARD DECK STRUCTURE
-          style={[styles.cardStyle, { top: 10 * (i - this.state.index), zIndex: 5 }]}
-        >*/}
       return (
        
         <Animated.View
@@ -182,25 +256,9 @@ animate () {
   }
 
   renderHeart () {
-        return (
-           
-           <Animated.View
-            style={{ position: 'absolute', flex: 1, left:0,bottom: SCREEN_HEIGHT *(50/100), height:30, width: 30, zIndex: 130 }}
-            {...this.state.panResponder.panHandlers}
-          >
-            <Image 
-            style={{ position: 'absolute', left:0,bottom: SCREEN_HEIGHT *(50/100), height:30, width: 30, zIndex: 120 }}
-            source={require('../icons/heart.png')}>
-            </Image>        
-           </Animated.View>
-                    
 
-        )
-    }
 
-  render() {
-
-    const marginLeft = this.pos1.interpolate({
+        const marginLeft = this.pos1.interpolate({
     inputRange: [0, 1],
     outputRange: [SCREEN_WIDTH+100, (SCREEN_WIDTH/2)]
   })
@@ -225,21 +283,33 @@ animate () {
     outputRange: [(SCREEN_HEIGHT/2)-(SCREEN_HEIGHT/10), (SCREEN_HEIGHT/2)-(SCREEN_HEIGHT/20), (SCREEN_HEIGHT/2)-(SCREEN_HEIGHT/10)]
   })
 
-    return (
-      <View style={{ flex:1  }}>
-       
-                  {this.renderCards()}
-      <Animated.Image
-        style={{
-          marginLeft:(SCREEN_WIDTH/2)-(SCREEN_WIDTH/10),
+        console.log('AARAV---->',dir);
+
+        if(dir === 'right'){
+        return (
+           
+           <Animated.Image
+          style={{
+          marginLeft,
           opacity,
           height,
           width,
           zIndex:200,
           marginTop: (SCREEN_HEIGHT/2)-(SCREEN_HEIGHT/10),
           backgroundColor: '#00000000'}}
-          source={require('../icons/heart.png')} />     
+          source={require('../icons/heart.png')} /> 
+                    
 
+        )
+        }
+    }
+
+  render() {
+    return (
+      <View style={{ flex:1  }}>
+                  {this.renderSpinner()}
+                  {this.renderCards()}
+                  {this.renderHeart()}
       </View>
     );
   }
@@ -257,4 +327,4 @@ const styles = {
   }
 };
 
-export default connect(mapStateToProps,{addFavCard,loadMoreFlag})(Deck);
+export default connect(mapStateToProps,{addFavCard,loadMoreFlag, getFavCards})(Deck);

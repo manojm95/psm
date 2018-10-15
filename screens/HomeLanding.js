@@ -3,14 +3,10 @@ import { View, Dimensions } from "react-native";
 import { connect } from "react-redux";
 import axios from "axios";
 import Header from "./HeaderComponent";
-import { NavigationActions, StackActions } from "react-navigation";
+import Toaster, { ToastStyles } from 'react-native-toaster';
+import { getCards, getFavCards } from "../actions/cardcreatoraction";
 import Spinner from "react-native-loading-spinner-overlay";
 
-import {
-  getCards,
-  getFavCards,
-  resetCards
-} from "../actions/cardcreatoraction";
 
 import {
   Image,
@@ -27,25 +23,15 @@ import {
 const SCREEN_HEIGHT = Dimensions.get("window").height;
 const SCREEN_WIDTH = Dimensions.get("window").width;
 
-class HomeND extends Component {
+class HomeLanding extends Component {
+
   constructor(props) {
     super(props);
 
     this.state = {
-      visible: false
+      visible: false,
+      message: null
     };
-  }
-
-  navigateToScreen = route => () => {
-    const navigateAction = NavigationActions.navigate({
-      routeName: route
-    });
-    this.props.navigation.dispatch(navigateAction);
-  };
-
-  componentWillMount() {
-    console.log("RESETACTION CWM");
-    //this.props.resetCards();
   }
 
   renderSpinner() {
@@ -73,9 +59,9 @@ class HomeND extends Component {
   }
 
   render() {
-    console.log("HomeND method render");
     return (
       <View style={{ flex: 1 }}>
+        <Toaster message={this.state.message} />
         {this.renderSpinner()}
         <ImageBackground
           style={{ flex: 1, justifyContent: "flex-start" }}
@@ -83,7 +69,7 @@ class HomeND extends Component {
             uri: "https://s3.amazonaws.com/testbucketmanojm95/featherfinal.jpg"
           }}
         >
-          <Header head="Categories" {...this.props} />
+          <Header head="Categories" {...this.props} ham='no' />
           <View
             style={{
               flex: 1,
@@ -100,19 +86,25 @@ class HomeND extends Component {
                 marginBottom: 10
               }}
               onPress={() => {
+                console.log('IIIIIIIII----->',JSON.stringify(this.props));
+                if(this.props.fc.length > 0 ){
                 this.setState({ visible: true });
                 setTimeout(() => {
                   this.setState({ visible: false });
-                }, 3000);
+                }, 5000);
                 this.props.getFavCards(this.props.fc,
                   () => {
-                    this.props.navigation.navigate("Home");
+                    this.props.navigation.navigate("Poem");
                   });
-                //this.props.navigation.navigate("Home");
-
+                console.log("MMMMMMMMM", this.props.navigation);
+                //this.props.navigation.navigate("Poem");
+                } else 
+                {
+                    this.setState({ message: {text: 'Oops! There are no poems saved as favorite. Please swipe cards to right to add cards to favorites!', styles: ToastStyles.info, height: 400 }})
+                }
               }}
             >
-              <Icon name="cart" />
+              <Image style={{ height: 16, width: 16, alignItems: 'center', justifyContent: 'center', marginRight: 18 }} source={require("../icons/favourites.png")} />
               <Text>Favorites</Text>
             </Button>
             <Button
@@ -126,16 +118,16 @@ class HomeND extends Component {
                 this.setState({ visible: true });
                 setTimeout(() => {
                   this.setState({ visible: false });
-                }, 3000);
+                }, 5000);
                 this.props.getCards(
                   "https://kuwxlkua52.execute-api.us-east-1.amazonaws.com/dev/psmjson/single?category=Love",
                   () => {
-                    this.props.navigation.navigate("Home");
+                    this.props.navigation.navigate("Poem");
                   }
                 );
               }}
             >
-              <Icon name="cart" />
+              <Image style={{ height: 16, width: 16, alignItems: 'center', justifyContent: 'center', marginRight: 18 }} source={require("../icons/heart.png")} />
               <Text>Love</Text>
             </Button>
             <Button
@@ -146,7 +138,7 @@ class HomeND extends Component {
                 marginBottom: 10
               }}
             >
-              <Icon name="cart" />
+              <Image style={{ height: 16, width: 16, alignItems: 'center', justifyContent: 'center', marginRight: 18 }} source={require("../icons/politics.png")} />
               <Text>Political</Text>
             </Button>
             <Button
@@ -157,7 +149,7 @@ class HomeND extends Component {
                 marginBottom: 10
               }}
             >
-              <Icon name="cart" />
+              <Image style={{ height: 16, width: 16, alignItems: 'center', justifyContent: 'center', marginRight: 18 }} source={require("../icons/nature.png")} />
               <Text>Nature</Text>
             </Button>
             <Button
@@ -168,7 +160,7 @@ class HomeND extends Component {
                 marginBottom: 10
               }}
             >
-              <Icon name="cart" />
+              <Image style={{ height: 16, width: 16, alignItems: 'center',  justifyContent: 'center', marginRight: 18 }} source={require("../icons/tamil2.png")}    resizeMode="contain"/>
               <Text>Thamizh</Text>
             </Button>
             <Button
@@ -179,7 +171,7 @@ class HomeND extends Component {
                 marginBottom: 10
               }}
             >
-              <Icon name="cart" />
+              <Image style={{ height: 16, width: 16, alignItems: 'center', justifyContent: 'center', marginRight: 18 }} source={require("../icons/family.png")} />
               <Text>Family</Text>
             </Button>
           </View>
@@ -190,11 +182,8 @@ class HomeND extends Component {
 }
 
 const mapStatetoProps = ({ favcards }) => {
-  //console.log('kkkkkkk---->'+JSON.stringify(cards,null,4))
-  console.log("FAVCARDSMAPHomend--->" + JSON.stringify(favcards, null, 4));
+  console.log("FAVCARDSMAPhy--->" + JSON.stringify(favcards, null, 4));
   return { fc: favcards };
 };
 
-export default connect(mapStatetoProps, { getCards, getFavCards, resetCards })(
-  HomeND
-);
+export default connect(mapStatetoProps, { getCards, getFavCards })(HomeLanding);

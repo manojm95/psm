@@ -1,17 +1,20 @@
 import React from 'react';
-import { StyleSheet, Text, View, AsyncStorage } from 'react-native';
+import { StyleSheet, Text, View, AsyncStorage, Dimensions } from 'react-native';
 import { TabNavigator, StackNavigator, DrawerNavigator } from 'react-navigation';
 import { createStore, compose, applyMiddleware } from 'redux';
 import { persistStore, autoRehydrate } from 'redux-persist';
 import { Provider } from 'react-redux';
 import { Font, Components } from 'expo';
 import { Examples } from '@shoutem/ui';
-import { WelcomeScreen, AuthScreen, ReviewScreen, SettingsScreen, HelpND, HomeND, CancelND } from './screens';
+import { WelcomeScreen, AuthScreen, ReviewScreen, SettingsScreen, CancelND, Panels, NavDrawerContent } from './screens';
 import reducers from './reducers';
 import DeckScreen from './screens/DeckScreen';
-import MapScreen from './screens/MapScreen';
+import HomeLanding from './screens/HomeLanding';
+import HomeND from './screens/HomeND';
 import store from './store';
 
+const SCREEN_HEIGHT = Dimensions.get('window').height;
+const SCREEN_WIDTH = Dimensions.get('window').width;
 
 
 export default class App extends React.Component {
@@ -39,6 +42,10 @@ export default class App extends React.Component {
     this.setState({fontsAreLoaded: true});
   }
 
+    componentDidCatch(err, info) {
+    console.log("ERRRRRRRRORRRRRRR1111--->");
+  }
+
 
   render() {
 
@@ -50,15 +57,16 @@ export default class App extends React.Component {
     }
 
     const NavDrawer = DrawerNavigator ({
-        Deck: { screen: DeckScreen },
-        Home: { screen: HomeND},
-        Help: { screen: HelpND},
+        Home: { screen: DeckScreen },
+        Help: { screen: Panels},
+        Category: { screen: HomeLanding},
         Cancel: { screen: CancelND }
     },
     {
+      drawerWidth: SCREEN_WIDTH * (75/100),
+      contentComponent: NavDrawerContent,
       drawerPosition: 'right',
-      drawerWidth: 200,
-      initialRouteName: 'Deck'
+      initialRouteName: 'Home'
     }
     );
 
@@ -67,11 +75,12 @@ export default class App extends React.Component {
     const MainNavigator = TabNavigator (
       {
       welcome: { screen: WelcomeScreen },
-      auth: { screen: AuthScreen },
+      auth: { screen: HomeND },
       main: {
         screen : TabNavigator (
           {
-          Map: { screen: MapScreen},
+          Map: { screen: HomeLanding
+          },
           //Deck: {screen: DeckScreen},
           Poem: { screen: NavDrawer}
           },

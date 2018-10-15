@@ -5,6 +5,9 @@ import axios from 'axios';
 const GC = 'getCard';
 const AFC = 'addFavCard';
 const LMF = 'loadMoreFlag';
+const FCSF = 'favCardsSetFlag';
+const DUMMY = 'dummy';
+
 
 
 export const getCards = (link,callback) =>  async dispatch => {
@@ -32,12 +35,25 @@ export const addFavCard = (data) => {
     )
 }
 
-export const getFavCards = (favCards) => {
+export const getFavCards1 = (favCards) => {
     return ({
         type: GC,
         payload: favCards
     }
     )
+}
+
+export const getFavCards = (data,callback) =>  async dispatch => {
+    console.log('GETTT CARDSSSSS ACTION CREATOR');
+    try {
+        let response = await axios.get("https://kuwxlkua52.execute-api.us-east-1.amazonaws.com/dev/psmjson/single?category=Love");
+         dispatch({ type: GC, payload: data });
+         callback();
+        
+    } catch(e)
+    {
+        console.log(e);
+    }
 }
 
 export const loadMoreFlag = (fl) => {
@@ -46,6 +62,29 @@ export const loadMoreFlag = (fl) => {
         payload: fl
     }
     )
+}
+
+export const resetCards = () => {
+    console.log('GETTT CARDSSSSS ACTION CREATOR RESETCARDSSS');
+    return ({
+        type: GC,
+        payload: []
+    }
+    )
+}
+
+
+export const dummyAsync = (callback) =>  async dispatch => {
+    console.log('GETTT CARDSSSSS ACTION CREATOR dumyAsync');
+    try {
+        let response = await axios.get("https://kuwxlkua52.execute-api.us-east-1.amazonaws.com/dev/psmjson/single?category=Love");
+         dispatch({ type: DUMMY, payload: null });
+         callback();
+        
+    } catch(e)
+    {
+        console.log(e);
+    }
 }
 
   
